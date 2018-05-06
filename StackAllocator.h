@@ -46,8 +46,9 @@ public:
 		if (cnt_of_busies_memes_ + cnt_of_memes > len_) {
 			upd_list();
 		}
+		char* for_return = get_free_pos();
 		cnt_of_busies_memes_ += cnt_of_memes;
-		return get_free_pos();
+		return for_return;
 	}
 	~buffer() {
 		if (now_)
@@ -66,11 +67,9 @@ public:
 	typedef std::size_t size_type;
 	typedef std::ptrdiff_t difference_type;
 	template< class U >
-	struct rebind { 
-		typedef StackAllocator<U> other; 
+	struct rebind {
+		typedef StackAllocator<U> other;
 	};
-	template <class U>
-	friend class StackAllocator;
 	template <class U>
 	friend class StackAllocator;
 private:
