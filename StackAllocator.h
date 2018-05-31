@@ -10,12 +10,12 @@ public:
 	explicit List(size_t len, List *prev = nullptr) :
 		len_(len),
 		prev_(prev),
-		start_(new char[len])
+		start_((char*)std::malloc(sizeof(char) * len))
 	{}
 	~List() {
-		delete[] start_;
+		std::free(start_);
 		if (prev_ != nullptr)
-			delete prev_;
+			prev_->~List();
 	}
 	char* get_start() {
 		return start_;
@@ -30,12 +30,12 @@ private:
 public:
 	explicit buffer(size_t len) :
 		len_(len),
-		now_(new List(len)),
+		now_(new (std::malloc(sizeof(List))) List(len)),
 		cnt_of_busies_memes_(0)
 	{}
 
 	void upd_list() {
-		now_ = new List(len_, now_);
+		now_ = new (std::malloc(sizeof(List))) List(len_, now_);
 		cnt_of_busies_memes_ = 0;
 	}
 	char* get_free_pos() {
@@ -51,8 +51,10 @@ public:
 		return for_return;
 	}
 	~buffer() {
-		if (now_)
-			delete now_;
+		if (now_) {
+			now_->~List();
+			std::free(now_);
+		}
 	}
 };
 
@@ -78,7 +80,7 @@ private:
 public:
 	explicit StackAllocator(size_t len = 1e7) :
 		len_(len),
-		buf_(new buffer(len))
+		buf_(new (std::malloc(sizeof(buffer))) buffer(len_))
 	{}
 	template < typename U >
 	StackAllocator(const StackAllocator < U >& other) {
